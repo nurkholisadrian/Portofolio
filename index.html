@@ -1,0 +1,889 @@
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>N. Adrian - Terminal</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            sysBlack: '#050507',
+            sysDark: '#0b0c10',
+            sysGray: '#12141c',
+            sysCard: '#181b26',
+            goldTheme: {
+              light: '#f5e2a3',
+              DEFAULT: '#cfa62d',
+              dark: '#947419',
+            },
+            silverTheme: {
+              light: '#eaecef',
+              DEFAULT: '#a3a6af',
+              dark: '#52555e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #050507;
+      color: #a3a6af;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0c10;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #232736;
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #cfa62d;
+    }
+
+    /* Pulse effect on active radar */
+    @keyframes ping-slow {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .radar-pulse {
+      animation: ping-slow 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    /* Scanline overlay for cyber depth */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.15) 50%
+      ), linear-gradient(
+        90deg, 
+        rgba(255, 0, 0, 0.03), 
+        rgba(0, 255, 0, 0.01), 
+        rgba(0, 0, 255, 0.03)
+      );
+      background-size: 100% 3px, 4px 100%;
+      z-index: 100;
+      opacity: 0.45;
+    }
+
+    /* Section dynamic fade-in animation */
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+      animation: systemSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes systemSlideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-xs md:text-sm select-none overflow-x-hidden min-h-screen flex flex-col">
+
+  <!-- Aesthetic Layer Grid -->
+  <div class="scanlines"></div>
+  <div class="fixed inset-0 bg-[radial-gradient(#1c1f2e_0.8px,transparent_0.8px)] bg-[size:20px_20px] opacity-35 pointer-events-none z-0"></div>
+
+  <!-- Main System UI Frame -->
+  <div class="flex-grow flex flex-col relative z-10 max-w-[1650px] w-full mx-auto p-3 sm:p-5 gap-3">
+    
+    <!-- Top Meta Terminal Header -->
+    <header class="bg-sysDark border border-white/5 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl relative overflow-hidden">
+      <!-- Gold Gradient Border Accent at the top -->
+      <div class="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-goldTheme to-transparent"></div>
+      
+      <div class="flex items-center gap-4 w-full md:w-auto">
+        <!-- Personal Logo / Hexagon Frame -->
+        <div class="relative shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-goldTheme/5 border border-goldTheme/30 flex items-center justify-center relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-br from-goldTheme/15 to-transparent"></div>
+            <span class="font-mono text-goldTheme font-bold text-base tracking-widest relative z-10">NA</span>
+          </div>
+          <!-- Tiny status badge -->
+          <span class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-sysDark rounded-full"></span>
+        </div>
+
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-white font-extrabold text-sm tracking-wider uppercase">NURKHOLIS ADRIAN</h1>
+            <span class="text-[9px] font-mono bg-white/5 border border-white/10 text-silverTheme-light px-2 py-0.5 rounded">SYSTEM_ANALYST</span>
+          </div>
+          <p class="text-[10px] text-silverTheme-dark font-mono flex items-center gap-1.5">
+            NODE: <span class="text-goldTheme font-semibold">127.0.0.1</span> | SYSTEM SPEED: <span class="text-green-400" id="live-speed">325.2 MB/s</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Live Dynamic Resource Metrics (Fluctuating real-time numbers) -->
+      <div class="flex items-center gap-6 text-[10px] font-mono bg-sysBlack/80 px-4 py-2.5 rounded-xl border border-white/5 w-full md:w-auto overflow-x-auto">
+        <div class="space-y-1 shrink-0">
+          <div class="flex justify-between gap-4 text-silverTheme-dark">
+            <span>MEM_UTL:</span>
+            <span class="text-white font-bold" id="mem-percent">41.8%</span>
+          </div>
+          <div class="w-24 bg-sysGray h-1 rounded-full overflow-hidden">
+            <div class="bg-goldTheme h-full transition-all duration-1000" id="mem-bar" style="width: 41.8%;"></div>
+          </div>
+        </div>
+
+        <div class="space-y-1 shrink-0 border-l border-white/10 pl-6">
+          <div class="flex justify-between gap-4 text-silverTheme-dark">
+            <span>NET_LATENCY:</span>
+            <span class="text-green-400 font-bold" id="latency-num">14 ms</span>
+          </div>
+          <div class="w-24 bg-sysGray h-1 rounded-full overflow-hidden">
+            <div class="bg-green-400 h-full transition-all duration-700" id="latency-bar" style="width: 15%;"></div>
+          </div>
+        </div>
+
+        <div class="space-y-1 shrink-0 border-l border-white/10 pl-6">
+          <div class="flex justify-between gap-4 text-silverTheme-dark">
+            <span>SECURITY_SHIELD:</span>
+            <span class="text-goldTheme font-bold">STABLE</span>
+          </div>
+          <div class="w-24 bg-sysGray h-1 rounded-full overflow-hidden">
+            <div class="bg-goldTheme h-full w-[95%]"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-grow flex flex-col lg:flex-row gap-3 min-h-0">
+      
+      <!-- Side Navigation Panel -->
+      <aside class="w-full lg:w-72 bg-sysDark border border-white/5 rounded-xl p-3 flex flex-row lg:flex-col gap-1.5 shrink-0 overflow-x-auto lg:overflow-x-visible">
+        
+        <div class="text-[9px] font-mono text-silverTheme-dark px-3 py-1 uppercase hidden lg:block tracking-widest border-b border-white/5 pb-2 mb-2">
+          Control Panel
+        </div>
+
+        <!-- System Tab Buttons -->
+        <button onclick="switchSystemTab('overview')" id="btn-overview" class="tab-btn flex items-center justify-between px-3.5 py-3 rounded-lg text-left font-mono text-[11px] w-full shrink-0 transition-all active-btn text-goldTheme bg-goldTheme/5 border border-goldTheme/25">
+          <div class="flex items-center gap-3">
+            <i class="ph ph-user-circle text-base"></i>
+            <span>OVERVIEW / PROFIL</span>
+          </div>
+          <span class="text-[9px] bg-white/5 px-1 rounded text-silverTheme-dark font-normal">SYS_01</span>
+        </button>
+
+        <button onclick="switchSystemTab('tactical-skills')" id="btn-tactical-skills" class="tab-btn flex items-center justify-between px-3.5 py-3 rounded-lg text-left font-mono text-[11px] w-full shrink-0 transition-all text-silverTheme hover:text-white hover:bg-white/5">
+          <div class="flex items-center gap-3">
+            <i class="ph ph-sword text-base"></i>
+            <span>TACTICAL SKILLS</span>
+          </div>
+          <span class="text-[9px] bg-white/5 px-1 rounded text-silverTheme-dark font-normal">SYS_02</span>
+        </button>
+
+        <button onclick="switchSystemTab('operations')" id="btn-operations" class="tab-btn flex items-center justify-between px-3.5 py-3 rounded-lg text-left font-mono text-[11px] w-full shrink-0 transition-all text-silverTheme hover:text-white hover:bg-white/5">
+          <div class="flex items-center gap-3">
+            <i class="ph ph-folder-open text-base"></i>
+            <span>ACTIVE OPERATIONS</span>
+          </div>
+          <span class="text-[9px] bg-white/5 px-1 rounded text-silverTheme-dark font-normal">SYS_03</span>
+        </button>
+
+        <button onclick="switchSystemTab('terminal-ai')" id="btn-terminal-ai" class="tab-btn flex items-center justify-between px-3.5 py-3 rounded-lg text-left font-mono text-[11px] w-full shrink-0 transition-all text-silverTheme hover:text-white hover:bg-white/5">
+          <div class="flex items-center gap-3">
+            <i class="ph ph-robot text-base"></i>
+            <span>COMPANION COGNITIVE</span>
+          </div>
+          <span class="text-[9px] bg-white/5 px-1 rounded text-silverTheme-dark font-normal">SYS_04</span>
+        </button>
+
+        <button onclick="switchSystemTab('uplink')" id="btn-uplink" class="tab-btn flex items-center justify-between px-3.5 py-3 rounded-lg text-left font-mono text-[11px] w-full shrink-0 transition-all text-silverTheme hover:text-white hover:bg-white/5">
+          <div class="flex items-center gap-3">
+            <i class="ph ph-broadcast text-base"></i>
+            <span>SECURE UPLINK</span>
+          </div>
+          <span class="text-[9px] bg-white/5 px-1 rounded text-silverTheme-dark font-normal">SYS_05</span>
+        </button>
+
+        <!-- Dynamic Micro-Sensing Panel (Only visible on large screen) -->
+        <div class="hidden lg:flex flex-col gap-3 mt-auto p-4 rounded-xl bg-sysBlack border border-white/5 relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-tr from-goldTheme/5 to-transparent"></div>
+          
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[9px] text-silverTheme-dark uppercase tracking-wider">RADAR SCANNER</span>
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+          </div>
+
+          <!-- CSS Radar Scan Simulation -->
+          <div class="h-28 w-full border border-white/5 rounded-lg bg-[#07080c] relative flex items-center justify-center overflow-hidden">
+            <!-- Grid Lines in Radar -->
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#151722_1px,transparent_1px),linear-gradient(to_bottom,#151722_1px,transparent_1px)] bg-[size:10px_10px]"></div>
+            <div class="w-20 h-20 rounded-full border border-goldTheme/10 flex items-center justify-center relative">
+              <div class="w-10 h-10 rounded-full border border-goldTheme/20 flex items-center justify-center">
+                <div class="w-2 h-2 rounded-full bg-goldTheme"></div>
+              </div>
+              <div class="absolute inset-0 border-r-2 border-goldTheme/40 rounded-full animate-[spin_4s_linear_infinite]"></div>
+            </div>
+            <!-- Blips -->
+            <div class="absolute top-6 left-12 w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></div>
+            <div class="absolute bottom-8 right-16 w-1 h-1 bg-goldTheme rounded-full animate-ping"></div>
+          </div>
+
+          <div class="font-mono text-[9px] text-silverTheme-dark leading-relaxed">
+            SYSTEM_INTEGRITY: <span class="text-white">OPTIMAL</span> <br>
+            BYPASS_TUNNEL: <span class="text-green-400">ESTABLISHED</span>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Center Dynamic Display Screen -->
+      <main class="flex-grow bg-sysDark border border-white/5 rounded-xl p-4 sm:p-6 flex flex-col justify-between overflow-y-auto relative min-h-[500px] shadow-2xl">
+        
+        <!-- ==================== SYSTEM 01: OVERVIEW & PROFILE ==================== -->
+        <div id="tab-overview" class="tab-panel active space-y-6">
+          <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+            <i class="ph ph-fingerprint text-xl text-goldTheme"></i>
+            <div>
+              <h2 class="text-sm font-mono font-bold text-white uppercase tracking-wider">Overview / Profil Utama</h2>
+              <p class="text-[10px] text-silverTheme-dark font-mono">ID: USER_NURKHOLIS_ADRIAN</p>
+            </div>
+          </div>
+
+          <!-- Profile Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left: Foto Profil / Frame Fallback -->
+            <div class="md:col-span-4 flex justify-center">
+              <div class="relative w-48 h-48 sm:w-56 sm:h-56">
+                <!-- Outer Tech Frames -->
+                <div class="absolute inset-0 rounded-2xl border border-dashed border-goldTheme/30 animate-[spin_40s_linear_infinite]"></div>
+                <div class="absolute inset-2 rounded-2xl border border-white/10"></div>
+                
+                <!-- Inner Image Box -->
+                <div class="absolute inset-4 rounded-xl overflow-hidden bg-sysBlack border border-white/5 flex flex-col items-center justify-center">
+                  <!-- Real image with fallback -->
+                  <img 
+                    src="assets/foto-saya.jpg" 
+                    alt="Nurkholis Adrian" 
+                    class="w-full h-full object-cover opacity-0 transition-opacity duration-700"
+                    onload="this.classList.remove('opacity-0')"
+                    onerror="this.style.display='none'; document.getElementById('avatar-fallback').classList.remove('hidden')"
+                  />
+
+                  <!-- Dynamic Fallback -->
+                  <div id="avatar-fallback" class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-tr from-sysGray to-sysBlack text-center p-3 hidden">
+                    <i class="ph ph-user-focus text-4xl text-goldTheme mb-2 animate-pulse"></i>
+                    <span class="font-mono text-[9px] text-silverTheme-dark tracking-widest leading-normal">
+                      PHOTO_PLACEHOLDER<br>
+                      <span class="text-goldTheme">assets/foto-saya.jpg</span>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Custom Corner Decorative Elements -->
+                <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-goldTheme"></div>
+                <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-goldTheme"></div>
+                <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-goldTheme"></div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-goldTheme"></div>
+              </div>
+            </div>
+
+            <!-- Right: Bio and Identity Metadata -->
+            <div class="md:col-span-8 space-y-4">
+              <div class="bg-sysBlack border border-white/5 p-4 rounded-xl space-y-3 font-mono">
+                <div class="text-[10px] text-goldTheme border-b border-white/5 pb-2">DATA IDENTITAS SISTEM</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-[11px]">
+                  <div class="flex justify-between">
+                    <span class="text-silverTheme-dark">NAMA:</span>
+                    <span class="text-white font-bold">Nurkholis Adrian</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-silverTheme-dark">RELIABILITY:</span>
+                    <span class="text-green-400 font-bold">99.98%</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-silverTheme-dark">ROLES:</span>
+                    <span class="text-white">Security Enthusiast</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-silverTheme-dark">SPECIALTY:</span>
+                    <span class="text-goldTheme">Tricker Tech & Exploit</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-2 text-xs leading-relaxed text-silverTheme">
+                <p>
+                  Saya merupakan spesialis di bidang <span class="text-white font-semibold">Tricker Tech</span>—sebuah disiplin modern yang berfokus pada optimasi lalu lintas jaringan, bypass konfigurasi SSL/SSH, dan perancangan perlindungan data tingkat tinggi.
+                </p>
+                <p>
+                  Melalui pendekatan taktis terhadap rekayasa balik protokol jaringan dan analisis celah keamanan web, saya membantu merancang infrastruktur digital yang aman dari ancaman siber eksternal tanpa mengabaikan kecepatan transmisi data.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================== SYSTEM 02: TACTICAL SKILLS ==================== -->
+        <div id="tab-tactical-skills" class="tab-panel space-y-6">
+          <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+            <i class="ph ph-sword text-xl text-goldTheme"></i>
+            <div>
+              <h2 class="text-sm font-mono font-bold text-white uppercase tracking-wider">Tactical Skills / Keahlian Taktis</h2>
+              <p class="text-[10px] text-silverTheme-dark font-mono">RESOURCE_CAPABILITIES_REPORT</p>
+            </div>
+          </div>
+
+          <!-- Custom Skill Grid Bars -->
+          <div class="space-y-4">
+            
+            <!-- Skill Bar 1 -->
+            <div class="bg-sysBlack border border-white/5 p-4 rounded-xl space-y-2">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-white font-bold flex items-center gap-1.5">
+                  <i class="ph ph-shield-check text-goldTheme"></i> TRICKER TECH & OPTIMISASI JARINGAN
+                </span>
+                <span class="text-goldTheme">96%</span>
+              </div>
+              <p class="text-[11px] text-silverTheme-dark leading-relaxed">
+                Kemampuan mengonfigurasi jalur proxy dinamis, bypass payload server, optimasi tunneling VPN/SSH, dan optimalisasi bandwidth.
+              </p>
+              <div class="w-full bg-sysGray h-1.5 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-goldTheme-dark to-goldTheme h-full w-[96%] rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- Skill Bar 2 -->
+            <div class="bg-sysBlack border border-white/5 p-4 rounded-xl space-y-2">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-white font-bold flex items-center gap-1.5">
+                  <i class="ph ph-lock text-goldTheme"></i> CYBER SECURITY & EXPLOITATION
+                </span>
+                <span class="text-goldTheme">89%</span>
+              </div>
+              <p class="text-[11px] text-silverTheme-dark leading-relaxed">
+                Pemindaian penetrasi celah sistem (Vulnerability Assessment), penanganan mitigasi SQL Injection, XSS, enkripsi data, dan hardening sistem.
+              </p>
+              <div class="w-full bg-sysGray h-1.5 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-goldTheme-dark to-goldTheme h-full w-[89%] rounded-full"></div>
+              </div>
+            </div>
+
+            <!-- Skill Bar 3 -->
+            <div class="bg-sysBlack border border-white/5 p-4 rounded-xl space-y-2">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-white font-bold flex items-center gap-1.5">
+                  <i class="ph ph-globe text-goldTheme"></i> FULL-STACK WEB ARCHITECTURE
+                </span>
+                <span class="text-goldTheme">85%</span>
+              </div>
+              <p class="text-[11px] text-silverTheme-dark leading-relaxed">
+                Pembuatan antarmuka web performa tinggi menggunakan Tailwind CSS, React, dan integrasi API backend yang cepat dan aman.
+              </p>
+              <div class="w-full bg-sysGray h-1.5 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-goldTheme-dark to-goldTheme h-full w-[85%] rounded-full"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================== SYSTEM 03: OPERATIONS ==================== -->
+        <div id="tab-operations" class="tab-panel space-y-6">
+          <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+            <i class="ph ph-folder-open text-xl text-goldTheme"></i>
+            <div>
+              <h2 class="text-sm font-mono font-bold text-white uppercase tracking-wider">Active Operations / Proyek & Kontribusi</h2>
+              <p class="text-[10px] text-silverTheme-dark font-mono">DEPLOYED_OPERATIONS_DIRECTORY</p>
+            </div>
+          </div>
+
+          <!-- Projects List -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Project Card 1 -->
+            <div class="bg-sysBlack border border-white/5 p-4 rounded-xl flex flex-col justify-between hover:border-goldTheme/30 transition-colors">
+              <div class="space-y-2">
+                <div class="flex justify-between items-center text-[10px] font-mono">
+                  <span class="text-goldTheme font-semibold">SECURITY CORE</span>
+                  <span class="text-silverTheme-dark">2026</span>
+                </div>
+                <h3 class="text-xs font-bold text-white font-mono uppercase">Aegis Secure Gateway</h3>
+                <p class="text-[11px] text-silverTheme-dark leading-relaxed">
+                  Firewall berbasis AI yang menyaring lalu lintas data buruk secara otomatis untuk mencegah serangan DDoS.
+                </p>
+              </div>
+              <div class="flex items-center justify-between border-t border-white/5 pt-3 mt-4 text-[10px] font-mono">
+                <span class="text-green-500 font-bold">● OPERASIONAL</span>
+                <span class="text-silverTheme-dark">NODE_01</span>
+              </div>
+            </div>
+
+            <!-- Project Card 2 -->
+            <div class="bg-sysBlack border border-white/5 p-4 rounded-xl flex flex-col justify-between hover:border-goldTheme/30 transition-colors">
+              <div class="space-y-2">
+                <div class="flex justify-between items-center text-[10px] font-mono">
+                  <span class="text-goldTheme font-semibold">NETWORKING</span>
+                  <span class="text-silverTheme-dark">2025</span>
+                </div>
+                <h3 class="text-xs font-bold text-white font-mono uppercase">Payload Tunnel Optimizer</h3>
+                <p class="text-[11px] text-silverTheme-dark leading-relaxed">
+                  Alat bantu pengoptimal paket enkripsi SSL untuk mempercepat jalur VPN eksternal hingga 40%.
+                </p>
+              </div>
+              <div class="flex items-center justify-between border-t border-white/5 pt-3 mt-4 text-[10px] font-mono">
+                <span class="text-green-500 font-bold">● OPERASIONAL</span>
+                <span class="text-silverTheme-dark">NODE_02</span>
+              </div>
+            </div>
+
+            <!-- Project Card 3 -->
+            <div class="bg-sysBlack border border-white/5 p-4 rounded-xl flex flex-col justify-between hover:border-goldTheme/30 transition-colors">
+              <div class="space-y-2">
+                <div class="flex justify-between items-center text-[10px] font-mono">
+                  <span class="text-goldTheme font-semibold">WEB PLATFORM</span>
+                  <span class="text-silverTheme-dark">2026</span>
+                </div>
+                <h3 class="text-xs font-bold text-white font-mono uppercase">Vortex Enkrip Website</h3>
+                <p class="text-[11px] text-silverTheme-dark leading-relaxed">
+                  Arsitektur frontend terdesentralisasi yang tahan terhadap sensor lokal dan meminimalkan pelacakan cookies.
+                </p>
+              </div>
+              <div class="flex items-center justify-between border-t border-white/5 pt-3 mt-4 text-[10px] font-mono">
+                <span class="text-yellow-500 font-bold">● TESTING STAGE</span>
+                <span class="text-silverTheme-dark">NODE_03</span>
+              </div>
+            </div>
+
+            <!-- Project Card 4 -->
+            <div class="bg-sysBlack border border-white/5 p-4 rounded-xl flex flex-col justify-between hover:border-goldTheme/30 transition-colors">
+              <div class="space-y-2">
+                <div class="flex justify-between items-center text-[10px] font-mono">
+                  <span class="text-goldTheme font-semibold">AUTOMATION</span>
+                  <span class="text-silverTheme-dark">2026</span>
+                </div>
+                <h3 class="text-xs font-bold text-white font-mono uppercase">Sentinel Log Alert</h3>
+                <p class="text-[11px] text-silverTheme-dark leading-relaxed">
+                  Sistem otomasi pendeteksi log aneh server yang terintegrasi langsung dengan Telegram API.
+                </p>
+              </div>
+              <div class="flex items-center justify-between border-t border-white/5 pt-3 mt-4 text-[10px] font-mono">
+                <span class="text-green-500 font-bold">● OPERASIONAL</span>
+                <span class="text-silverTheme-dark">NODE_04</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================== SYSTEM 04: TERMINAL AI COMPANION ==================== -->
+        <div id="tab-terminal-ai" class="tab-panel space-y-4">
+          <div class="flex items-center justify-between border-b border-white/5 pb-2">
+            <div class="flex items-center gap-3">
+              <i class="ph ph-robot text-xl text-goldTheme"></i>
+              <div>
+                <h2 class="text-sm font-mono font-bold text-white uppercase tracking-wider">Cognitive AI Assistant</h2>
+                <p class="text-[10px] text-silverTheme-dark font-mono">OFFLINE_KNOWLEDGE_BASE</p>
+              </div>
+            </div>
+            <span class="text-[9px] font-mono text-green-400 bg-green-500/10 px-2 py-0.5 rounded border border-green-500/20 animate-pulse">AI ACTIVE</span>
+          </div>
+
+          <p class="text-xs text-silverTheme leading-relaxed">
+            Sistem asisten kognitif buatan Adrian yang berjalan secara mandiri (offline) di web ini. Tanyakan apa saja yang Anda ingin ketahui tentang data dirinya atau cara mengontaknya.
+          </p>
+
+          <!-- Terminal Terminal Window -->
+          <div class="bg-sysBlack border border-white/15 rounded-xl overflow-hidden shadow-inner flex flex-col">
+            <!-- Window Control Header -->
+            <div class="bg-sysGray/60 px-4 py-2.5 flex items-center justify-between border-b border-white/5 select-none">
+              <div class="flex space-x-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
+              </div>
+              <span class="font-mono text-[9px] text-silverTheme-dark flex items-center gap-1.5">
+                <i class="ph ph-command"></i> user@nadrian-assistant:~
+              </span>
+              <div class="w-10"></div>
+            </div>
+
+            <!-- Terminal Output History Area -->
+            <div id="chat-scroller" class="p-4 font-mono text-[11px] h-[250px] overflow-y-auto space-y-3 bg-[#070709]">
+              <div class="text-silverTheme-dark">
+                [SYS_LOG] Core Cognitive loaded.<br>
+                [SYS_LOG] Brain file: Nurkholis_Adrian_Brain.json (100% verified)<br>
+                ------------------------------------------------------------<br>
+                <span class="text-goldTheme font-bold">AI:</span> Halo! Saya asisten offline cerdas dari Nurkholis Adrian. <br>
+                Gunakan menu di bawah atau ketik langsung pertanyaan Anda (contoh: "help", "siapa adrian", "minta kontak").
+              </div>
+              <div id="chat-history" class="space-y-3"></div>
+            </div>
+
+            <!-- Quick Action Tabs/Labels -->
+            <div class="px-4 py-2.5 bg-sysGray/40 border-t border-white/5 flex flex-wrap gap-1.5">
+              <button onclick="directAiQuery('Siapa Adrian?')" class="bg-sysBlack hover:bg-goldTheme/5 hover:border-goldTheme/30 border border-white/5 text-[9px] text-silverTheme px-2 py-1 rounded font-mono transition-all">
+                # SIAPA ADRIAN?
+              </button>
+              <button onclick="directAiQuery('Apa itu Tricker Tech?')" class="bg-sysBlack hover:bg-goldTheme/5 hover:border-goldTheme/30 border border-white/5 text-[9px] text-silverTheme px-2 py-1 rounded font-mono transition-all">
+                # APA TRICKER TECH?
+              </button>
+              <button onclick="directAiQuery('Minta Kontak')" class="bg-sysBlack hover:bg-goldTheme/5 hover:border-goldTheme/30 border border-white/5 text-[9px] text-silverTheme px-2 py-1 rounded font-mono transition-all">
+                # MINTA KONTAK
+              </button>
+            </div>
+          </div>
+
+          <!-- Text Terminal Input Bar -->
+          <div class="flex items-center gap-2 bg-sysBlack rounded-xl border border-white/10 px-3 py-2.5">
+            <span class="text-goldTheme font-mono font-bold shrink-0">user@nadrian:~$</span>
+            <input 
+              type="text" 
+              id="chat-input"
+              class="w-full bg-transparent text-white focus:outline-none font-mono text-[11px] caret-goldTheme"
+              placeholder="Tulis instruksi kognitif..."
+              autocomplete="off"
+            />
+            <button onclick="submitChat()" class="text-goldTheme hover:text-white transition-colors p-0.5">
+              <i class="ph-bold ph-paper-plane-tilt text-base"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ==================== SYSTEM 05: SECURE UPLINK ==================== -->
+        <div id="tab-uplink" class="tab-panel space-y-6">
+          <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+            <i class="ph ph-broadcast text-xl text-goldTheme"></i>
+            <div>
+              <h2 class="text-sm font-mono font-bold text-white uppercase tracking-wider">Secure Uplink / Hubungi Saya</h2>
+              <p class="text-[10px] text-silverTheme-dark font-mono">ENCRYPTED_DIRECT_CONNECTION</p>
+            </div>
+          </div>
+
+          <!-- Contact Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Github Link -->
+            <a href="https://github.com/nurkholisadrian" target="_blank" class="bg-sysBlack border border-white/5 hover:border-goldTheme/30 p-4 rounded-xl flex items-center justify-between group transition-all">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-white text-xl">
+                  <i class="ph-bold ph-github-logo"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-mono font-bold text-xs uppercase">Github Repos</h4>
+                  <p class="text-[10px] text-silverTheme-dark">github.com/nurkholisadrian</p>
+                </div>
+              </div>
+              <i class="ph ph-arrow-square-out text-lg text-silverTheme-dark group-hover:text-goldTheme transition-colors"></i>
+            </a>
+
+            <!-- Telegram Link -->
+            <a href="https://t.me/nurkholisadrian" target="_blank" class="bg-sysBlack border border-white/5 hover:border-goldTheme/30 p-4 rounded-xl flex items-center justify-between group transition-all">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-[#0088cc]/10 flex items-center justify-center text-[#0088cc] text-xl">
+                  <i class="ph-bold ph-telegram-logo"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-mono font-bold text-xs uppercase">Telegram Channel</h4>
+                  <p class="text-[10px] text-silverTheme-dark">@nurkholisadrian</p>
+                </div>
+              </div>
+              <i class="ph ph-arrow-square-out text-lg text-silverTheme-dark group-hover:text-goldTheme transition-colors"></i>
+            </a>
+
+            <!-- Email Link -->
+            <a href="mailto:nurkholisadrian@gmail.com" class="bg-sysBlack border border-white/5 hover:border-goldTheme/30 p-4 rounded-xl flex items-center justify-between group transition-all">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400 text-xl">
+                  <i class="ph-bold ph-envelope-simple"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-mono font-bold text-xs uppercase">Secure Email</h4>
+                  <p class="text-[10px] text-silverTheme-dark">nurkholisadrian@gmail.com</p>
+                </div>
+              </div>
+              <i class="ph ph-arrow-square-out text-lg text-silverTheme-dark group-hover:text-goldTheme transition-colors"></i>
+            </a>
+
+            <!-- WhatsApp Link -->
+            <a href="https://wa.me/628551123340" target="_blank" class="bg-sysBlack border border-white/5 hover:border-goldTheme/30 p-4 rounded-xl flex items-center justify-between group transition-all">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center text-green-400 text-xl">
+                  <i class="ph-bold ph-whatsapp-logo"></i>
+                </div>
+                <div>
+                  <h4 class="text-white font-mono font-bold text-xs uppercase">WhatsApp Direct</h4>
+                  <p class="text-[10px] text-silverTheme-dark">0855-1123-340</p>
+                </div>
+              </div>
+              <i class="ph ph-arrow-square-out text-lg text-silverTheme-dark group-hover:text-goldTheme transition-colors"></i>
+            </a>
+
+          </div>
+
+          <!-- Contact Form -->
+          <div class="bg-sysBlack border border-white/5 rounded-xl p-5 space-y-4">
+            <h4 class="font-mono text-white text-xs">Pancarkan Pesan Anda</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input type="text" id="sender-name" class="bg-sysGray border border-white/5 focus:border-goldTheme rounded-lg p-3 text-xs text-white focus:outline-none transition-all" placeholder="Nama Lengkap">
+              <input type="email" id="sender-email" class="bg-sysGray border border-white/5 focus:border-goldTheme rounded-lg p-3 text-xs text-white focus:outline-none transition-all" placeholder="Email Anda">
+            </div>
+            <textarea id="sender-msg" rows="4" class="w-full bg-sysGray border border-white/5 focus:border-goldTheme rounded-lg p-3 text-xs text-white focus:outline-none transition-all" placeholder="Tuliskan isi pesan atau penawaran kerja sama di sini..."></textarea>
+            <button onclick="sendUplinkMessage()" class="bg-gradient-to-r from-goldTheme to-goldTheme-dark hover:shadow-lg text-sysBlack font-bold font-mono text-xs px-5 py-3 rounded-lg transition-all">
+              KIRIM ENKRIPSI PESAN
+            </button>
+          </div>
+        </div>
+
+        <!-- System Screen Footer / Meta Data -->
+        <div class="border-t border-white/5 pt-3 mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[9px] font-mono text-silverTheme-dark select-none">
+          <span>PORTAL MONITOR_V4.9_ACTIVE</span>
+          <span class="flex items-center gap-1.5">
+            <span class="relative flex h-1.5 w-1.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+            </span>
+            <span>SECURE SHIELD PROTECTION</span>
+          </span>
+        </div>
+      </main>
+    </div>
+
+    <!-- Live Toast Message Box (No Web Alerts) -->
+    <div id="notif-toast" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-500 pointer-events-none">
+      <div class="bg-sysBlack border border-goldTheme/30 shadow-2xl p-4 rounded-xl flex items-center space-x-3.5 max-w-sm">
+        <div class="w-7 h-7 rounded-full bg-goldTheme/10 border border-goldTheme/20 flex items-center justify-center text-goldTheme shrink-0">
+          <i class="ph-bold ph-shield-check text-sm"></i>
+        </div>
+        <div>
+          <h4 class="text-[10px] font-bold text-white font-mono uppercase tracking-wider">Pemberitahuan Sistem</h4>
+          <p class="text-[10px] text-silverTheme-dark mt-0.5" id="toast-text">Sinyal pesan berhasil dikirim.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Small Footer -->
+    <footer class="bg-sysDark border border-white/5 rounded-xl px-4 py-3 flex items-center justify-between text-[10px] font-mono text-silverTheme-dark">
+      <span>&copy; 2026. NURKHOLIS ADRIAN. All System Core Verified.</span>
+      <span class="flex items-center gap-2"><i class="ph ph-git-branch text-goldTheme"></i> v4.9.2</span>
+    </footer>
+
+  </div>
+
+  <!-- Client Interaction Javascript Logic -->
+  <script>
+    // --- 1. Tab Navigation Routing ---
+    function switchSystemTab(tabId) {
+      // Hide all panels
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+
+      // Clear design state from buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('text-goldTheme', 'bg-goldTheme/5', 'border', 'border-goldTheme/25');
+        btn.classList.add('text-silverTheme', 'hover:bg-white/5');
+      });
+
+      // Show targeted panel
+      const targetedPanel = document.getElementById(`tab-${tabId}`);
+      if (targetedPanel) targetedPanel.classList.add('active');
+
+      // Add active state to button
+      const targetedBtn = document.getElementById(`btn-${tabId}`);
+      if (targetedBtn) {
+        targetedBtn.classList.remove('text-silverTheme', 'hover:bg-white/5');
+        targetedBtn.classList.add('text-goldTheme', 'bg-goldTheme/5', 'border', 'border-goldTheme/25');
+      }
+    }
+
+    // --- 2. Live Telemetry Data Fluctuations (Fluctuating Real-time) ---
+    const speedText = document.getElementById('live-speed');
+    const memPercent = document.getElementById('mem-percent');
+    const memBar = document.getElementById('mem-bar');
+    const latencyNum = document.getElementById('latency-num');
+    const latencyBar = document.getElementById('latency-bar');
+
+    setInterval(() => {
+      // Fluctuate System Speed
+      const randomSpeed = (300 + Math.random() * 50).toFixed(1);
+      speedText.textContent = `${randomSpeed} MB/s`;
+
+      // Fluctuate Memory Utilisation
+      const randomMem = (40 + Math.random() * 3).toFixed(1);
+      memPercent.textContent = `${randomMem}%`;
+      memBar.style.width = `${randomMem}%`;
+
+      // Fluctuate Network Latency
+      const randomLatency = Math.floor(10 + Math.random() * 8);
+      latencyNum.textContent = `${randomLatency} ms`;
+      // Convert latency range to bar percentage
+      const barPercent = (randomLatency / 30) * 100;
+      latencyBar.style.width = `${barPercent}%`;
+    }, 1500);
+
+    // --- 3. Cognitive Offline AI Assistant (Simulated AI Agent) ---
+    const chatInput = document.getElementById('chat-input');
+    const chatHistory = document.getElementById('chat-history');
+    const chatScroller = document.getElementById('chat-scroller');
+
+    // System Brain Knowledge Database
+    const kognitifDatabase = {
+      help: `Instruksi yang terdaftar:<br>
+             &nbsp;&nbsp;<span class='text-goldTheme'>profil / whoami</span> : Cari tahu siapa Nurkholis Adrian.<br>
+             &nbsp;&nbsp;<span class='text-goldTheme'>tricker</span> : Penjelasan tentang perannya di Tricker Tech.<br>
+             &nbsp;&nbsp;<span class='text-goldTheme'>kontak</span> : Saluran komunikasi yang tersedia.<br>
+             &nbsp;&nbsp;<span class='text-goldTheme'>clear</span> : Bersihkan log konsol kognitif.`,
+      clear: 'clear',
+      tricker: `<b>Tricker Tech</b> adalah seni manipulasi paket data, optimasi routing tunneling (SSH/VPN/SSL) untuk efisiensi transfer data maksimal, serta pencegahan celah eksploitasi web. Adrian adalah spesialis dalam perancangan teknik ini secara taktis dan aman.`,
+      profil: `<b>Nurkholis Adrian</b> merupakan seorang profesional di bidang Cyber Security & Web Architect. Memadukan kemahiran dalam rekayasa backend berkinerja tinggi serta teknik hardening server untuk meminimalkan potensi serangan.`,
+      whoami: `<b>Nurkholis Adrian</b> merupakan seorang profesional di bidang Cyber Security & Web Architect. Memadukan kemahiran dalam rekayasa backend berkinerja tinggi serta teknik hardening server untuk meminimalkan potensi serangan.`,
+      kontak: `Saluran kontak terenkripsi milik Adrian:<br>
+               &nbsp;&nbsp;> Telegram: <a href='https://t.me/nurkholisadrian' target='_blank' class='text-goldTheme underline'>@nurkholisadrian</a><br>
+               &nbsp;&nbsp;> WhatsApp: <a href='https://wa.me/628551123340' target='_blank' class='text-goldTheme underline'>+62 855-1123-340</a><br>
+               &nbsp;&nbsp;> Gmail: <span class='text-white'>nurkholisadrian@gmail.com</span><br>
+               &nbsp;&nbsp;> GitHub: <a href='https://github.com/nurkholisadrian' target='_blank' class='text-goldTheme underline'>github.com/nurkholisadrian</a>`
+    };
+
+    function processCognitiveBrain(textInput) {
+      const formatted = textInput.toLowerCase().trim();
+
+      if (formatted === 'clear') {
+        chatHistory.innerHTML = '';
+        return null;
+      }
+
+      if (kognitifDatabase[formatted]) {
+        return kognitifDatabase[formatted];
+      }
+
+      // Conversational mapping (NLP fallback)
+      if (formatted.includes('halo') || formatted.includes('hi') || formatted.includes('hai')) {
+        return 'Halo! Asisten offline Adrian aktif. Silakan tanyakan seputar "profil", "keahlian", atau "kontak".';
+      }
+      if (formatted.includes('tricker') || formatted.includes('trick') || formatted.includes('hacker') || formatted.includes('bypass')) {
+        return kognitifDatabase.tricker;
+      }
+      if (formatted.includes('kontak') || formatted.includes('hubungi') || formatted.includes('wa') || formatted.includes('email') || formatted.includes('telegram')) {
+        return kognitifDatabase.kontak;
+      }
+      if (formatted.includes('siapa') || formatted.includes('adrian') || formatted.includes('kholis')) {
+        return kognitifDatabase.profil;
+      }
+      if (formatted.includes('github') || formatted.includes('proyek') || formatted.includes('karya')) {
+        return `Anda dapat mengintip daftar repositori kode dan kontribusi pengembangan yang dilakukan Adrian secara langsung di:<br>
+                > GitHub: <a href='https://github.com/nurkholisadrian' target='_blank' class='text-goldTheme underline'>https://github.com/nurkholisadrian</a>`;
+      }
+
+      return `Instruksi <span class='text-red-400'>"${textInput}"</span> tidak terdaftar di database offline saya. Ketik <span class='text-goldTheme font-bold'>help</span> untuk opsi bantuan.`;
+    }
+
+    function appendUserLine(text) {
+      const div = document.createElement('div');
+      div.innerHTML = `<span class="text-silverTheme-dark">user@nadrian:~$</span> <span class="text-white">${text}</span>`;
+      chatHistory.appendChild(div);
+    }
+
+    function appendAiLine(htmlText) {
+      const div = document.createElement('div');
+      div.className = 'bg-sysGray/40 p-2.5 rounded-lg border border-white/5 mt-1';
+      div.innerHTML = `<span class="text-goldTheme font-bold">AI:</span> ${htmlText}`;
+      chatHistory.appendChild(div);
+    }
+
+    function submitChat() {
+      const query = chatInput.value;
+      if (!query.trim()) return;
+
+      appendUserLine(query);
+      chatInput.value = '';
+
+      const answer = processCognitiveBrain(query);
+      if (answer !== null) {
+        setTimeout(() => {
+          appendAiLine(answer);
+          chatScroller.scrollTop = chatScroller.scrollHeight;
+        }, 120);
+      } else {
+        chatScroller.scrollTop = chatScroller.scrollHeight;
+      }
+    }
+
+    function directAiQuery(queryText) {
+      appendUserLine(queryText);
+      const answer = processCognitiveBrain(queryText);
+      if (answer !== null) {
+        appendAiLine(answer);
+        chatScroller.scrollTop = chatScroller.scrollHeight;
+      }
+    }
+
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitChat();
+    });
+
+    // --- 4. Secure Toast Notification System ---
+    const notifToast = document.getElementById('notif-toast');
+    const toastText = document.getElementById('toast-text');
+
+    function showSystemNotification(msgText) {
+      toastText.innerHTML = msgText;
+      notifToast.classList.remove('translate-y-24', 'opacity-0');
+      notifToast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        notifToast.classList.add('translate-y-24', 'opacity-0');
+        notifToast.classList.remove('translate-y-0', 'opacity-100');
+      }, 5000);
+    }
+
+    function sendUplinkMessage() {
+      const name = document.getElementById('sender-name').value;
+      const email = document.getElementById('sender-email').value;
+      const message = document.getElementById('sender-msg').value;
+
+      if (!name || !email || !message) {
+        showSystemNotification('<span class="text-red-400 font-bold">KIRIM GAGAL:</span> Formulir tidak lengkap.');
+        return;
+      }
+
+      showSystemNotification(`Pesan dari <span class="text-white font-bold">${name}</span> dienkripsi dengan SHA-256 & berhasil dipancarkan.`);
+      
+      // Clear Inputs
+      document.getElementById('sender-name').value = '';
+      document.getElementById('sender-email').value = '';
+      document.getElementById('sender-msg').value = '';
+    }
+  </script>
+</body>
+</html>
