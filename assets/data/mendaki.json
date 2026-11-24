@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "group": "mendaki",
+  "instructions": "Edit hanya teks title, location, badge (jika ada), dan description. Jangan ubah id.",
+  "items": [
+    {
+      "id": "mendaki-1",
+      "title": "Jejak Puncak & Kabut Pagi",
+      "location": "Pendakian Gunung",
+      "badge": "Mendaki",
+      "description": "Momen ketenangan di atas ketinggian setelah menempuh jalur pendakian panjang. Ruang terbaik untuk menyegarkan pikiran dan menjaga keseimbangan fokus di luar dunia digital."
+    }
+  ]
+}

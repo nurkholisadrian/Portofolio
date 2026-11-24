@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "group": "bali",
+  "instructions": "Edit hanya teks title, location, badge (jika ada), dan description. Jangan ubah id.",
+  "items": [
+    {
+      "id": "bali-1",
+      "title": "Nuansa Pesisir Pulau Dewata",
+      "location": "Bali — Hari 01",
+      "badge": null,
+      "description": "Menikmati ketenangan garis pantai Bali dengan hembusan angin laut yang santai di sela perjalanan."
+    },
+    {
+      "id": "bali-2",
+      "title": "Jejak Arsitektur & Budaya Lokal",
+      "location": "Bali — Hari 02",
+      "badge": null,
+      "description": "Mengamati detail estetika budaya dan sudut-sudut ikonik Bali yang kaya akan karakter visual."
+    },
+    {
+      "id": "bali-3",
+      "title": "Lanskap Hijau & Udara Dataran Tinggi",
+      "location": "Bali — Hari 03",
+      "badge": null,
+      "description": "Perjalanan menyusuri kawasan perbukitan hijau yang asri dengan suasana tenang jauh dari hiruk-pikuk."
+    },
+    {
+      "id": "bali-4",
+      "title": "Senja Penutup Perjalanan di Bali",
+      "location": "Bali — Hari 04",
+      "badge": null,
+      "description": "Momen matahari terbenam yang hangat sebagai penutup rangkaian eksplorasi dan dokumentasi visual di Bali."
+    }
+  ]
+}

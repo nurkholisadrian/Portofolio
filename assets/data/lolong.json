@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "group": "lolong",
+  "instructions": "Edit hanya teks title, location, badge (jika ada), dan description. Jangan ubah id.",
+  "items": [
+    {
+      "id": "lolong-1",
+      "title": "Eksplorasi Alam Lolong Adventure",
+      "location": "Lolong Adventure",
+      "badge": "Alam Indonesia",
+      "description": "Dokumentasi kegiatan luar ruang menyusuri aliran sungai, udara sejuk pepohonan, dan suasana alami di kawasan Lolong Adventure."
+    }
+  ]
+}
