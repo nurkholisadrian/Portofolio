@@ -1,0 +1,70 @@
+{
+"profile": {
+"display_name": "nurkholisadrian",
+"whatsapp_number": "628551123340",
+"email_address": "nurkholisadrian@gmail.com"
+},
+"links": {
+"personal_github": {
+"title": "GitHub",
+"button_label": "GitHub",
+"display_text": "github.com/nurkholisadrian",
+"username": "nurkholisadrian",
+"url": "https://github.com/nurkholisadrian"
+},
+"personal_telegram": {
+"title": "Telegram",
+"button_label": "Telegram",
+"username": "@nurkholisadrian",
+"url": "https://t.me/nurkholisadrian"
+},
+"personal_instagram": {
+"title": "Instagram",
+"button_label": "@nurkholisadriann",
+"username": "@nurkholisadriann",
+"url": "https://www.instagram.com/nurkholisadriann/"
+},
+"personal_tiktok": {
+"title": "TikTok Pribadi",
+"button_label": "TikTok",
+"username": "@nurkholisadrian",
+"url": "https://www.tiktok.com/@nurkholisadrian"
+},
+"personal_whatsapp": {
+"title": "WhatsApp",
+"button_label": "WhatsApp",
+"username": "0855 1123340",
+"url": "https://wa.me/628551123340"
+},
+"personal_email": {
+"title": "Email",
+"button_label": "Email",
+"username": "nurkholisadrian@gmail.com",
+"url": "mailto:nurkholisadrian@gmail.com"
+},
+"brand_tiktok": {
+"title": "TikTok Official Brand",
+"button_label": "TikTok Official: @xyo_",
+"username": "@xyo_",
+"url": "https://www.tiktok.com/@xyo_"
+},
+"brand_shopee": {
+"title": "Shopee Official Brand",
+"button_label": "Shopee Official: xyo_official",
+"username": "xyo_official",
+"url": "https://shopee.co.id/xyo_official"
+},
+"brand_website": {
+"title": "Website Official Brand",
+"button_label": "Website Official: xyo_official",
+"username": "xyo_official",
+"url": "https://xyo-official.com"
+},
+"digitex_website": {
+"title": "Website DIgitex Kaos Sablon DTF",
+"button_label": "Kunjungi Website DIgitex",
+"username": "PT Satu Kualitas Internasional",
+"url": "https://nurkholisadrian.github.io/Digitex/"
+}
+}
+}
